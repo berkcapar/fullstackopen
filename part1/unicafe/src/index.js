@@ -2,6 +2,14 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import Header from './components/Header/index'
 
+
+const Button = ({onClick, text}) => ( 
+<button onClick={onClick}>
+  {text}
+</button>
+)
+ 
+
 const Statistic = ({text,value}) => {
 return (
   <tr>
@@ -50,9 +58,9 @@ const handleBadClick = () => setBad (bad+1)
   return (
     <div>
       <Header/>
-      <button onClick={handleGoodClick}>Good</button>
-      <button onClick={handleNeutralClick}>Neutral</button>
-      <button onClick={handleBadClick}>Bad</button>
+      <Button onClick={handleGoodClick} text="Good" />
+      <Button onClick ={handleNeutralClick} text="Neutral"/>
+      <Button onClick ={handleBadClick} text ="Bad" />
       <h2>Stats:</h2>
       <Statistics good = {good} bad = {bad} neutral = {neutral}/>          
     </div>
