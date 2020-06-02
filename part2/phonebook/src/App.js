@@ -1,17 +1,17 @@
 import React, { useState,useEffect } from 'react'
-import axios from 'axios'
 import Person from './components/Person'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import personService from './services/notes'
 
 const App = () => {
   const [ persons, setPersons ] = useState([])
   
   useEffect(()=>{
-    axios 
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      setPersons(response.data)
+    personService
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
     })
   },[])
 
@@ -24,13 +24,33 @@ const addPeople = (event) => {
   const peopleObject = {
     name: newName,
     number: newPhone,
-    id: persons.length + 1
+    id: persons.length + 1   
   }
+
+personService
+ .create(peopleObject)
+ .then(returnedPeople =>{
+   setPersons(persons.concat(returnedPeople))
+   setNewSearch('')
+ }) 
+
 
  const checkExistingName = persons.map(person => person.name)
 
  checkExistingName.includes(newName) ? window.alert(`${newName} is already added to phonebook`) : setPersons(persons.concat(peopleObject)) && setNewName('') && setNewPhone('') 
 }
+
+const deletePeople = (person)=>{
+  if(window.confirm(`Remove ${person.name}?`)){
+    personService
+    .extract(person.id)
+    .then(()=>{
+      setPersons(persons.filter(p => p.id !== person.id))
+    })
+  }
+  
+}
+
 
  const filteredSearch = newSearch === '' ? persons : persons.filter(person => person.name.toLowerCase().includes(newSearch.toLowerCase()))
 
@@ -53,8 +73,9 @@ const handleSearchChange = (event) => {
       <h3>Search By Name: <Filter newSearch={newSearch} handleSearchChange={handleSearchChange} /></h3>
       <PersonForm addPeople={addPeople} newName={newName} newPhone={newPhone} handleNameChange={handleNameChange} handlePhoneChange={handlePhoneChange}/>
       <h2>Numbers</h2>
-    <ul>
-     {filteredSearch.map((person,i) => <Person key={i} person = {person}/>)}
+      
+    <ul >
+    {filteredSearch.map((person,i) => <Person deletePeople={deletePeople} key={i} person = {person}/>)} 
     </ul>
     </div>
   )
