@@ -3,6 +3,7 @@ import Person from './components/Person'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import personService from './services/notes'
+import Notification from './components/Notification/Notification'
 
 const App = () => {
   const [ persons, setPersons ] = useState([])
@@ -18,6 +19,20 @@ const App = () => {
   const [newName, setNewName ] = useState('')
   const [newPhone, setNewPhone] = useState('')
   const [newSearch, setNewSearch] = useState('')
+  const [message, setMessage] = useState(null)
+
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
+  }
+  
+  const handlePhoneChange = (event) =>{
+    setNewPhone(event.target.value)
+  }
+  
+  const handleSearchChange = (event) => {
+    setNewSearch(event.target.value)
+  }
+  
 
 const addPeople = (event) => {
   event.preventDefault()
@@ -27,18 +42,23 @@ const addPeople = (event) => {
     id: persons.length + 1   
   }
 
-personService
- .create(peopleObject)
- .then(returnedPeople =>{
-   setPersons(persons.concat(returnedPeople))
-   setNewSearch('')
- }) 
+const checkExistingName = persons.map(person => person.name)
 
-
- const checkExistingName = persons.map(person => person.name)
-
- checkExistingName.includes(newName) ? window.alert(`${newName} is already added to phonebook`) : setPersons(persons.concat(peopleObject)) && setNewName('') && setNewPhone('') 
+if(checkExistingName.includes(newName)){
+  window.alert(`${newName} is already added to phonebook`); 
+} else {
+  personService
+ .create(peopleObject).then(returnedPeople => {
+   setPersons(persons.concat(returnedPeople));
+   setNewName('');
+   setNewPhone('');
+   setMessage(`Added ${newName}`) 
+  setTimeout(() => {
+    setMessage(null)
+  }, 5000)
+ }); 
 }
+};
 
 const deletePeople = (person)=>{
   if(window.confirm(`Remove ${person.name}?`)){
@@ -51,25 +71,12 @@ const deletePeople = (person)=>{
   
 }
 
-
  const filteredSearch = newSearch === '' ? persons : persons.filter(person => person.name.toLowerCase().includes(newSearch.toLowerCase()))
-
-
-const handleNameChange = (event) => {
-  setNewName(event.target.value)
-}
-
-const handlePhoneChange = (event) =>{
-  setNewPhone(event.target.value)
-}
-
-const handleSearchChange = (event) => {
-  setNewSearch(event.target.value)
-}
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <h3>Search By Name: <Filter newSearch={newSearch} handleSearchChange={handleSearchChange} /></h3>
       <PersonForm addPeople={addPeople} newName={newName} newPhone={newPhone} handleNameChange={handleNameChange} handlePhoneChange={handlePhoneChange}/>
       <h2>Numbers</h2>
