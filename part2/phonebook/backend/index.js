@@ -8,86 +8,88 @@ const { response } = require('express')
 app.use(express.json())
 app.use(express.static('build'))
 
-app.use(morgan('tiny'));
+app.use(morgan('tiny'))
 
-app.get('/api/persons',(request,response) =>{
-    Phonebook.find({}).then(person => {
-        response.json(person)
-      })
-    })
+app.get('/api/persons',(request,response) => {
+  Phonebook.find({}).then(person => {
+    response.json(person)
+  })
+})
 
-app.get('/info' ,(req,res)=>{
+app.get('/info' ,(req,res) => {
 
-    res.send(`
+  res.send(`
         <h1>Phonebook has info for ${Phonebook.length} people</h1>
         ${new Date()}`)
 })
 
-app.get('/api/persons/:id', (req,res, next)=>{
-    //const id = Number(req.params.id)
-    //const person = Phonebook.find(person=>person.id ===id)
+app.get('/api/persons/:id', (req,res, next) => {
+  //const id = Number(req.params.id)
+  //const person = Phonebook.find(person=>person.id ===id)
 
-    Phonebook.findById(req.params.id).then(person=>{
-        if(person){
-            res.json(person) 
-        } else {
-            response.status(404).end()
-        }
-       
-    })
-    .catch(error => next(error))       
-})
-
-app.delete('/api/persons/:id',(req,res, next)=>{
-    // const id = Number(req.params.id)
-    // notes = notes.filter(note=>note.id !== id)
-    Phonebook.findByIdAndDelete(req.params.id).then(person=>{
-        res.status(204).end()
-    })
+  Phonebook.findById(req.params.id).then(person => {
+    if(person){
+      res.json(person)
+    }
+    else {
+      response.status(404).end()
+    }
+  })
     .catch(error => next(error))
-   
+})
+
+app.delete('/api/persons/:id',(req,res, next) => {
+// const id = Number(req.params.id)
+// notes = notes.filter(note=>note.id !== id)
+  Phonebook.findByIdAndDelete(req.params.id).then(person => {
+    res.status(204).end()
+  })
+    .catch(error => next(error))
 })
 
 
-app.post('/api/persons',(req,res)=>{
-    const body = req.body
+app.post('/api/persons',(req,res,next) => {
+  const body = req.body
 
-    if(!body.name){
-        return res.status(400).json({
-            error: 'name missing!'
-        })
-    }
+  if(!body.name){
+    return res.status(400).json({
+      error: 'name missing!'
+    })
+  }
 
-    if(!body.number){
-        return res.status(400).jsın({
-            error: 'number missing'
-        })
-    }
+  if(!body.number){
+    return res.status(400).json({
+      error: 'number missing'
+    })
+  }
 
-const person = new Phonebook({
+  const person = new Phonebook({
     name: body.name,
     number: body.number,
-    
-})
-    person.save().then(savedPerson =>{
-        res.json(savedPerson)
-    })
+
+  })
+  person.save().then(savedPerson => {
+    res.json(savedPerson)
+  })
+    .catch(error => next(error))
 
 })
 
-const unknownEndpoint = (req,res) =>{
-    res.status(404).send({error:'unknown endpoint'})
+const unknownEndpoint = (req,res) => {
+  res.status(404).send({ error:'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
-const errorHandler = (error, req, res, next) =>{
-    console.error(error.message)
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message)
 
-    if (error.name = 'CastError'){
-        return res.status(400).send({error:'malformatten id!'})
-    }
-    next(error)
+  if (error.name === 'CastError'){
+    return res.status(400).send({ error:'malformatten id!' })
+  } else if(error.name === 'ValidationError'){
+    return res.status(400).json({ error: error.message })
+  }
+  next(error)
 }
 app.use(errorHandler)
 
