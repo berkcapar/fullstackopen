@@ -10,12 +10,6 @@ app.use(express.static('build'))
 
 app.use(morgan('tiny'));
 
-
-
-
-
-
-
 app.get('/api/persons',(request,response) =>{
     Phonebook.find({}).then(person => {
         response.json(person)
@@ -46,10 +40,7 @@ app.delete('/api/persons/:id',(req,res)=>{
     })
    
 })
-const generateId = () => {
-    const newId = Math.floor((Math.random()*100) + persons.length)
-    return newId
-}
+
 
 app.post('/api/persons',(req,res)=>{
     const body = req.body
@@ -69,21 +60,12 @@ app.post('/api/persons',(req,res)=>{
 const person = new Phonebook({
     name: body.name,
     number: body.number,
-    id: generateId()
+    
 })
-
-const checkExistingName = persons.map(person=>person.name)
-
-if(checkExistingName.includes(body.name)){
-    return res.status(400).json({
-        error: 'This user already add to phonebook'
-    })
-} else {
     person.save().then(savedPerson =>{
         res.json(savedPerson)
     })
-    
-}
+
 })
 
 const PORT = process.env.PORT
