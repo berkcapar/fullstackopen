@@ -14,7 +14,7 @@ beforeEach(async () => {
     }
   })
 
-  test('all notes are returned as json', async () => {
+  test('all blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
       .expect(200)
@@ -24,7 +24,30 @@ beforeEach(async () => {
       })
   })
 
+  test ('of adding a blog', async () =>{
+    const newBlog = {
+      title: 'Valid Blog Test Entry',
+      author: 'Lo Wang',
+      url: 'https://lowang.com/valid-entry',
+      likes: 6
+    }
+    await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd.length).toBe(helper.initialBlogs.length + 1)
+    
+    expect(blogsAtEnd).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining(newBlog)
+      ])
+    )
+  })
+
   afterAll(async () => {
     mongoose.connection.close()
-    await new Promise(resolve => setTimeout(() => resolve(), 500)); // avoid jest open handle error
+    // await new Promise(resolve => setTimeout(() => resolve(), 500)); // avoid jest open handle error
   })
