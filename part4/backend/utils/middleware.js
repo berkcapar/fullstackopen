@@ -1,5 +1,16 @@
 const morgan = require('morgan')
 
+
+
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    request.token = authorization.substring(7)
+  }
+  next()
+}
+
+
 morgan.token('body', function (req) {
   if (process.env.NODE_ENV !== 'test' || req.method !== 'POST') {
     return ' '
@@ -9,5 +20,6 @@ morgan.token('body', function (req) {
 
 
 module.exports = {
-  morgan
+  morgan,
+  tokenExtractor
 }
