@@ -10,9 +10,9 @@ const anecdotesAtStart = [
 export const createAnectode = (content) => {
 return{
   type: 'NEW_ANECTODE',
-  data:{
-    content
-  }
+  data:
+    asObject(content)
+  
 }
 }
 
@@ -54,8 +54,8 @@ const reducer = (state = initialState, action) => {
     }
     return state.map(anecdote => anecdote.id !== id ? anecdote : changedAnecdote);
     case 'NEW_ANECTODE':
-   const {content} = action.data;
-   return [...state, asObject(content)]
+   const {data} = action
+   return [...state,data]
    default: 
    return state;
   }
