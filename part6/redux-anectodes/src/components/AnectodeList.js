@@ -3,10 +3,13 @@ import { useSelector, useDispatch } from 'react-redux'
 import {giveVote} from '../reducers/anecdoteReducer'
 import { ResetNotification } from '../reducers/notificationReducer';
 
+
 const AnectodeList = () => {
 
   const anecdotes = useSelector(state => [...state.anecdotes].sort((first, second) => second.votes - first.votes));
   const dispatch = useDispatch()
+
+
 
   const vote = (id) => {
    dispatch(giveVote(id))   

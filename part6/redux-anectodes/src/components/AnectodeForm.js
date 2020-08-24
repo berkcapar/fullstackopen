@@ -2,19 +2,31 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { createAnectode } from '../reducers/anecdoteReducer'
 import { ResetNotification } from '../reducers/notificationReducer'
+import anectodeService from '../services/anecdotes'
 
 
 const AnectodeForm = () => { 
 
     const dispatch = useDispatch()
 
-    const addAnectode = (event) => {    
+    const addAnectode = async (event) => {    
         event.preventDefault()
         const content  = event.target.new.value
-        dispatch(createAnectode(content))
+        event.target.new.value = '';
+        const getId = () => (100000 * Math.random()).toFixed(0)
+        const anectode = {
+            content,
+            votes:0,
+            id: getId()
+        }
+        
+        const data = await anectodeService.createNew(anectode)
+        
+        dispatch(createAnectode(data))
         setTimeout(()=>{
             dispatch(ResetNotification())
         },5000)
+      
       }
 
       return (

@@ -1,6 +1,7 @@
 import {createStore,combineReducers} from 'redux'
-import anecdoteReducer from './reducers/anecdoteReducer';
+import anecdoteReducer, { initializeAnectodes } from './reducers/anecdoteReducer';
 import notificationReducer from './reducers/notificationReducer';
+import anecdoteService from './services/anecdotes'
 
 import {composeWithDevTools} from 'redux-devtools-extension'
 
@@ -10,5 +11,9 @@ const reducer = combineReducers({
   });
 
 const store = createStore(reducer, composeWithDevTools())
+
+anecdoteService.getAll().then( anecdotes =>
+    store.dispatch(initializeAnectodes(anecdotes))
+    )
 
 export default store
